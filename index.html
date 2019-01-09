@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>WebAssembly Online Checker</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
+    <meta
+      name="description"
+      content="Does your browser supports WebAssembly?"
+    />
+    <meta name="keywords" content="WebAssembly, Online, Checker" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Joway Wang" />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Noto+Sans+TC"
+      rel="stylesheet"
+    />
+
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-53624533-8"
+    ></script>
+    <script src="https://joway.io/analytics.js"></script>
+  </head>
+
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 0;
+      background-color: #5f57e7;
+    }
+    .main {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+    .content {
+      margin-top: 20%;
+      font-size: 1.5em;
+      color: #eef7f2;
+    }
+    .highlight {
+      font-size: 1.2em;
+    }
+  </style>
+  <body>
+    <div class="main">
+      <div class="content"><span id="msg"></span></div>
+    </div>
+    <script>
+      var supported = (() => {
+        try {
+          if (
+            typeof WebAssembly === "object" &&
+            typeof WebAssembly.instantiate === "function"
+          ) {
+            const module = new WebAssembly.Module(
+              Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00)
+            );
+            if (module instanceof WebAssembly.Module)
+              return (
+                new WebAssembly.Instance(module) instanceof WebAssembly.Instance
+              );
+          }
+        } catch (e) {}
+        return false;
+      })();
+
+      var msg = document.getElementById("msg");
+      if (supported) {
+        msg.innerHTML =
+          "Your browser <b class='highlight'>SUPPORTS</b> WebAssembly! 🎉";
+      } else {
+        msg.innerHTML =
+          "Your browser does <b class='highlight'>NOT</b> support WebAssembly! 😔";
+      }
+    </script>
+  </body>
+</html>
