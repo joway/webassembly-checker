@@ -47,31 +47,34 @@
     <div class="content"><span id="msg"></span></div>
   </div>
   <script>
-    var supported = (() => {
+    function isWASMEnabled() {
       try {
         if (
           typeof WebAssembly === "object" &&
           typeof WebAssembly.instantiate === "function"
         ) {
-          const module = new WebAssembly.Module(
+          var module = new WebAssembly.Module(
             Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00)
           );
-          if (module instanceof WebAssembly.Module)
+          if (module instanceof WebAssembly.Module) {
             return (
               new WebAssembly.Instance(module) instanceof WebAssembly.Instance
             );
+          }
         }
-      } catch (e) { }
-      return false;
-    })();
+      } catch (e) {
+        return false;
+      }
+    };
 
     var msg = document.getElementById("msg");
-    if (supported) {
+    if (isWASMEnabled()) {
       msg.innerHTML =
         "Your browser <b class='highlight'>SUPPORTS</b> WebAssembly! 🎉";
     } else {
       msg.innerHTML =
         "Your browser does <b class='highlight'>NOT</b> support WebAssembly! 😔";
+      document.body.style.backgroundColor = "#cc0000";
     }
   </script>
 </body>
