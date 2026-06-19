@@ -2,50 +2,241 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8" />
   <title>WebAssembly Online Checker</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <link rel="shortcut icon" href="/logo.png" type="image/x-icon" />
-  <meta name="description" content="Does your browser supports WebAssembly?" />
-  <meta name="keywords" content="webassembly, wasm, check, test, checker, tester" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/logo.png" type="image/png" />
+  <meta name="description" content="Does your browser support WebAssembly? Check WebAssembly support and features like SIMD, threads and more." />
+  <meta name="keywords" content="webassembly, wasm, check, test, checker, tester, simd, threads" />
   <meta name="robots" content="index, follow" />
   <meta name="language" content="English" />
   <meta name="author" content="Joway Wang" />
+  <meta name="theme-color" content="#5f57e7" />
 
-  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC" rel="stylesheet" />
+  <meta property="og:title" content="WebAssembly Online Checker" />
+  <meta property="og:description" content="Does your browser support WebAssembly? Check WebAssembly support and features like SIMD, threads and more." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/logo.png" />
+  <meta name="twitter:card" content="summary" />
 
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-53624533-8"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X7BH3GLYYE"></script>
   <script src="https://joway.io/analytics.js"></script>
+
+  <style>
+    :root {
+      --bg-a: #6d5ef0;
+      --bg-b: #8f4fe0;
+      --bg-c: #3f2dad;
+      --accent: #a9ffcf;
+      --card: rgba(255, 255, 255, 0.10);
+      --card-border: rgba(255, 255, 255, 0.22);
+      --text: #f6f5ff;
+      --text-dim: rgba(246, 245, 255, 0.72);
+      --good: #34d399;
+      --good-bg: rgba(52, 211, 153, 0.14);
+      --good-border: rgba(52, 211, 153, 0.40);
+      --off: rgba(255, 255, 255, 0.10);
+      --off-border: rgba(255, 255, 255, 0.16);
+      --off-text: rgba(246, 245, 255, 0.45);
+    }
+
+    body.unsupported {
+      --bg-a: #e2585f;
+      --bg-b: #c0303a;
+      --bg-c: #7e1822;
+      --accent: #ffd2d2;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Noto Sans TC", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--bg-a), var(--bg-b) 55%, var(--bg-c));
+      background-size: 200% 200%;
+      animation: drift 18s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+      padding: 24px;
+      transition: background 0.6s ease;
+    }
+
+    @keyframes drift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 44px 36px 32px;
+      text-align: center;
+      backdrop-filter: blur(22px) saturate(140%);
+      -webkit-backdrop-filter: blur(22px) saturate(140%);
+      box-shadow: 0 24px 60px -18px rgba(20, 8, 60, 0.55);
+      animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px) scale(0.98); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .logo {
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.30));
+      animation: float 5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .status {
+      margin: 22px 0 6px;
+      font-size: clamp(1.7rem, 6vw, 2.3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .status .key {
+      background: linear-gradient(120deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      margin: 0 0 28px;
+      font-size: 0.98rem;
+      color: var(--text-dim);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      text-align: left;
+    }
+
+    .features li {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 13px;
+      border-radius: 13px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      background: var(--off);
+      border: 1px solid var(--off-border);
+      color: var(--off-text);
+      animation: pop 0.45s ease both;
+    }
+
+    .features li.supported {
+      background: var(--good-bg);
+      border-color: var(--good-border);
+      color: var(--text);
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .dot {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--off-text);
+    }
+
+    .supported .dot {
+      background: var(--good);
+      color: #04331f;
+    }
+
+    .features-title {
+      margin: 4px 0 14px;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .footer {
+      margin-top: 26px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .footer a {
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+      padding-bottom: 1px;
+    }
+
+    .footer a:hover {
+      border-bottom-color: var(--text);
+    }
+
+    @media (max-width: 420px) {
+      .card { padding: 36px 22px 26px; border-radius: 22px; }
+      .features { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
 </head>
 
-<style>
-  body {
-    font-family: "Noto Sans TC", sans-serif;
-    margin: 0;
-    background-color: #5f57e7;
-  }
-
-  .main {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .content {
-    margin-top: 20%;
-    font-size: 1.5em;
-    color: #eef7f2;
-  }
-
-  .highlight {
-    font-size: 1.2em;
-  }
-</style>
-
 <body>
-  <div class="main">
-    <div class="content"><span id="msg"></span></div>
-  </div>
+  <main class="card">
+    <img class="logo" src="/logo.png" alt="WebAssembly logo" width="76" height="76" />
+    <h1 class="status" id="status"></h1>
+    <p class="subtitle" id="subtitle"></p>
+    <div id="features-wrap" hidden>
+      <p class="features-title">Supported features</p>
+      <ul class="features" id="features"></ul>
+    </div>
+    <p class="footer">
+      Made by <a href="https://joway.io" target="_blank" rel="noopener">Joway</a>
+      · <a href="https://developer.mozilla.org/docs/WebAssembly" target="_blank" rel="noopener">What is WebAssembly?</a>
+    </p>
+  </main>
+
   <script>
     function isWASMEnabled() {
       try {
@@ -65,16 +256,108 @@
       } catch (e) {
         return false;
       }
-    };
+      return false;
+    }
 
-    var msg = document.getElementById("msg");
+    // Validate a module that uses a given proposal's opcodes. Byte sequences are
+    // the canonical minimal probes used by wasm-feature-detect.
+    function validates(bytes) {
+      try {
+        return WebAssembly.validate(new Uint8Array(bytes));
+      } catch (e) {
+        return false;
+      }
+    }
+
+    var FEATURES = [
+      {
+        name: "Streaming compilation",
+        test: function () {
+          return typeof WebAssembly.instantiateStreaming === "function";
+        }
+      },
+      {
+        name: "SIMD",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 10, 1, 8, 0, 65, 0, 253, 15, 253, 98, 11]);
+        }
+      },
+      {
+        name: "Threads (shared memory)",
+        test: function () {
+          return typeof SharedArrayBuffer === "function" &&
+            validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0, 5, 4, 1, 3, 1, 1, 10, 11, 1, 9, 0, 65, 0, 254, 16, 2, 0, 26, 11]);
+        }
+      },
+      {
+        name: "Bulk memory ops",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0, 5, 3, 1, 0, 1, 10, 14, 1, 12, 0, 65, 0, 65, 0, 65, 0, 252, 10, 0, 0, 11]);
+        }
+      },
+      {
+        name: "Reference types",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0, 10, 7, 1, 5, 0, 208, 112, 26, 11]);
+        }
+      },
+      {
+        name: "Exception handling",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0, 10, 8, 1, 6, 0, 6, 64, 25, 11, 11]);
+        }
+      },
+      {
+        name: "Tail calls",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 4, 1, 96, 0, 0, 3, 2, 1, 0, 10, 6, 1, 4, 0, 18, 0, 11]);
+        }
+      },
+      {
+        name: "Multi-value returns",
+        test: function () {
+          return validates([0, 97, 115, 109, 1, 0, 0, 0, 1, 6, 1, 96, 0, 2, 127, 127, 3, 2, 1, 0, 10, 8, 1, 6, 0, 65, 0, 65, 0, 11]);
+        }
+      }
+    ];
+
+    var statusEl = document.getElementById("status");
+    var subtitleEl = document.getElementById("subtitle");
+    var featuresWrap = document.getElementById("features-wrap");
+    var featuresEl = document.getElementById("features");
+
     if (isWASMEnabled()) {
-      msg.innerHTML =
-        "Your browser <b class='highlight'>SUPPORTS</b> WebAssembly! 🎉";
+      statusEl.innerHTML = 'Your browser <span class="key">supports</span> WebAssembly 🎉';
+      subtitleEl.textContent = "You're all set to run high-performance WebAssembly apps.";
+      featuresWrap.hidden = false;
+
+      FEATURES.forEach(function (feature, i) {
+        var supported = false;
+        try {
+          supported = !!feature.test();
+        } catch (e) {
+          supported = false;
+        }
+
+        var li = document.createElement("li");
+        li.className = supported ? "supported" : "";
+        li.style.animationDelay = (i * 45) + "ms";
+
+        var dot = document.createElement("span");
+        dot.className = "dot";
+        dot.textContent = supported ? "✓" : "—";
+
+        var label = document.createElement("span");
+        label.textContent = feature.name;
+
+        li.appendChild(dot);
+        li.appendChild(label);
+        featuresEl.appendChild(li);
+      });
     } else {
-      msg.innerHTML =
-        "Your browser does <b class='highlight'>NOT</b> support WebAssembly! 😔";
-      document.body.style.backgroundColor = "#cc0000";
+      document.body.classList.add("unsupported");
+      statusEl.innerHTML = 'Your browser does <span class="key">not</span> support WebAssembly 😔';
+      subtitleEl.textContent = "Try updating to a recent version of Chrome, Firefox, Safari or Edge.";
     }
   </script>
 </body>
